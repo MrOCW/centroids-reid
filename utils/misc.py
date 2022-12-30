@@ -107,14 +107,14 @@ def run_single(cfg, method, logger_save_dir):
         accelerator=cfg.SOLVER.DIST_BACKEND,
         num_sanity_val_steps=0,
         replace_sampler_ddp=False,
-        checkpoint_callback=checkpoint_callback,
+        checkpoint_callback=True,
         precision=16 if cfg.USE_MIXED_PRECISION else 32,
         resume_from_checkpoint=cfg.MODEL.PRETRAIN_PATH
         if cfg.MODEL.RESUME_TRAINING
         else None,
-        callbacks=[periodic_checkpointer],
+        callbacks=[periodic_checkpointer,checkpoint_callback],
         #enable_pl_optimizer=True,
-        reload_dataloaders_every_epoch=True
+        reload_dataloaders_every_n_epochs=True
     )
 
     train_loader = dm.train_dataloader(
@@ -153,7 +153,7 @@ def run_single(cfg, method, logger_save_dir):
                 use_multiple_loggers=True if len(loggers) > 1 else False,
             )
         trainer.fit(
-            method, train_dataloader=train_loader, val_dataloaders=[val_dataloader]
+            method, train_dataloaders=train_loader, val_dataloaders=[val_dataloader]
         )
         method.hparams.MODEL.USE_CENTROIDS = not method.hparams.MODEL.USE_CENTROIDS
         trainer.test(model=method, test_dataloaders=val_dataloader)
