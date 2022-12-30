@@ -61,8 +61,7 @@ class ModelBase(pl.LightningModule):
             if cfg.TEST.ONLY_TEST:
                 # To make sure that loaded hparams are overwritten by cfg we may have chnaged
                 hparams = {**kwargs, **cfg}
-        self.hparams = AttributeDict(hparams)
-        self.save_hyperparameters(self.hparams)
+        self.save_hyperparameters(hparams)
 
         if test_dataloader is not None:
             self.test_dataloader = test_dataloader
@@ -133,7 +132,7 @@ class ModelBase(pl.LightningModule):
             **kwargs,
         )
 
-    def training_step(self, batch, batch_idx, opt_idx=None):
+    def training_step(self, batch, batch_idx):
         raise NotImplementedError(
             "A used model should have its own training_step method implemented"
         )

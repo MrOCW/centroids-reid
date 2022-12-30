@@ -35,7 +35,7 @@ class CTLModel(ModelBase):
         ]
         self.losses_dict = {n: [] for n in self.losses_names}
 
-    def training_step(self, batch, batch_idx, optimizer_idx=None):
+    def training_step(self, batch, batch_idx):
         opt, opt_center = self.optimizers(use_pl_optimizer=True)
 
         if self.hparams.SOLVER.USE_WARMUP_LR:
@@ -74,7 +74,7 @@ class CTLModel(ModelBase):
 
         total_loss = center_loss + xent_query + contrastive_loss_query
 
-        self.manual_backward(total_loss, optimizer=opt)
+        self.manual_backward(total_loss)#, optimizer=opt)
         opt.step()
 
         for param in self.center_loss.parameters():
