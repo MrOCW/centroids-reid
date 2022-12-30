@@ -52,6 +52,7 @@ def weights_init_kaiming(m):
 class ModelBase(pl.LightningModule):
     def __init__(self, cfg=None, test_dataloader=None, **kwargs):
         super().__init__()
+        self.automatic_optimization = cfg.SOLVER.USE_AUTOMATIC_OPTIM
 
         if cfg is None:
             hparams = {**kwargs}
