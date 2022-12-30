@@ -1,7 +1,7 @@
 einops
 mlflow
 opencv-python
-pytorch-lightning==1.4.9
+pytorch-lightning==1.5.10
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==1.7.1+cu110
 -f  https://download.pytorch.org/whl/torch_stable.html

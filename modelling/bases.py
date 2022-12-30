@@ -68,7 +68,7 @@ class ModelBase(pl.LightningModule):
 
         # Create backbone model
         self.backbone = Baseline(self.hparams)
-
+        print(self.hparams)
         self.contrastive_loss = TripletLoss(
             self.hparams.SOLVER.MARGIN, self.hparams.SOLVER.DISTANCE_FUNC
         )
@@ -164,7 +164,7 @@ class ModelBase(pl.LightningModule):
                 self.losses_dict[name] = []  ## Zeroing values after a completed epoch
 
         self.trainer.logger.log_metrics(log_data, step=self.trainer.current_epoch)
-        self.trainer.accelerator_backend.barrier()
+        self.trainer.accelerator.barrier()
 
     @rank_zero_only
     def validation_step(self, batch, batch_idx):
@@ -315,7 +315,7 @@ class ModelBase(pl.LightningModule):
             if self.trainer.global_rank == 0 and self.trainer.local_rank == 0:
                 self.get_val_metrics(embeddings, labels, camids)
             del embeddings, labels, camids
-        self.trainer.accelerator_backend.barrier()
+        self.trainer.accelerator.barrier()
 
     @rank_zero_only
     def eval_on_train(self):

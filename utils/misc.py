@@ -31,9 +31,9 @@ def get_distributed_sampler(
         "ddp2": trainer.num_nodes,
         "ddp_cpu": trainer.num_processes * trainer.num_nodes,
     }
-    assert trainer.distributed_backend is not None
+    assert trainer.accelerator is not None
     kwargs = dict(
-        num_replicas=world_size[trainer.distributed_backend], rank=trainer.global_rank
+        num_replicas=world_size[trainer.accelerator], rank=trainer.global_rank
     )
 
     kwargs["shuffle"] = train and not trainer.overfit_batches
@@ -104,10 +104,10 @@ def run_single(cfg, method, logger_save_dir):
         logger=loggers,
         fast_dev_run=False,
         check_val_every_n_epoch=cfg.SOLVER.EVAL_PERIOD,
-        accelerator=cfg.SOLVER.DIST_BACKEND,
+        strategy=cfg.SOLVER.DIST_BACKEND,
         num_sanity_val_steps=0,
         replace_sampler_ddp=False,
-        checkpoint_callback=True,
+        enable_checkpointing=True,
         precision=16 if cfg.USE_MIXED_PRECISION else 32,
         resume_from_checkpoint=cfg.MODEL.PRETRAIN_PATH
         if cfg.MODEL.RESUME_TRAINING
@@ -132,9 +132,9 @@ def run_single(cfg, method, logger_save_dir):
             num_classes=dm.num_classes,
             use_multiple_loggers=True if len(loggers) > 1 else False,
         )
-        trainer.test(model=method, test_dataloaders=val_dataloader)
+        trainer.test(model=method, dataloaders=val_dataloader)
         method.hparams.MODEL.USE_CENTROIDS = not method.hparams.MODEL.USE_CENTROIDS
-        trainer.test(model=method, test_dataloaders=val_dataloader)
+        trainer.test(model=method, dataloaders=val_dataloader)
         method.hparams.MODEL.USE_CENTROIDS = not method.hparams.MODEL.USE_CENTROIDS
     else:
         if cfg.MODEL.RESUME_TRAINING:
@@ -156,7 +156,7 @@ def run_single(cfg, method, logger_save_dir):
             method, train_dataloaders=train_loader, val_dataloaders=[val_dataloader]
         )
         method.hparams.MODEL.USE_CENTROIDS = not method.hparams.MODEL.USE_CENTROIDS
-        trainer.test(model=method, test_dataloaders=val_dataloader)
+        trainer.test(model=method, dataloaders=val_dataloader)
         method.hparams.MODEL.USE_CENTROIDS = not method.hparams.MODEL.USE_CENTROIDS
 
 

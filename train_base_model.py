@@ -120,7 +120,7 @@ class CTLModel(ModelBase):
                 self.losses_dict[name] = []  ## Zeroing values after a completed epoch
 
         self.trainer.logger.log_metrics(log_data, step=self.trainer.current_epoch)
-        self.trainer.accelerator_backend.barrier()
+        self.trainer.accelerator.barrier()
 
 
 if __name__ == "__main__":
